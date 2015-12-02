@@ -3,6 +3,10 @@ import Metronome from './metronome';
 import Categories from './categories';
 import Store from '../stores/store';
 
+$.post('/test', {data: 'hello'}, function (res) {
+  console.log(res);
+});
+
 function getCategoriesState () {
   return {
     categories: Store.getAllCategories()

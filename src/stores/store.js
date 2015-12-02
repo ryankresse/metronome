@@ -151,15 +151,20 @@ AppDispatcher.register(function(action) {
   var text;
 
   switch(action.actionType) {
+
     case Constants.CAT_CREATE:
         createCategory(action.text);
         Store.emitChange();
       break;
-}
-  switch(action.actionType) {
+
     case Constants.ENTRY_CREATE:
           createEntry(action.data.name, action.data.catId);
           Store.emitChange();
+        break;
+        
+    case Constants.SERVER_TEST:
+        console.log(action.data.name)
+        Store.emitChange();
         break;
 
 
