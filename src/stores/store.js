@@ -22,9 +22,25 @@ var _categories = [
         value: 60,
         date: '1/11/1111'
       }
+    }],
+  },
+  {
+    name: "Arpeggios",
+    id: 2,
+    entries: [
+      {
+        name: 'D-Major',
+        best: {
+          value: 60,
+          date: '1/11/1111'
+        },
+        recent: {
+          value: 60,
+          date: '1/11/1111'
+        }
+      }]
     }
-  ]
-}];
+];
 
 /**
  * Create a TODO item.
@@ -126,6 +142,10 @@ var Store = assign({}, EventEmitter.prototype, {
   getAllCategories: function() {
     return _categories;
   },
+  getCategory: function (id) {
+  var cat =  _.find(_categories, {'id': id })
+  return cat;
+  },
 
   emitChange: function() {
     this.emit(CHANGE_EVENT);
@@ -161,7 +181,7 @@ AppDispatcher.register(function(action) {
           createEntry(action.data.name, action.data.catId);
           Store.emitChange();
         break;
-        
+
     case Constants.SERVER_TEST:
         console.log(action.data.name)
         Store.emitChange();
