@@ -1,15 +1,22 @@
 import React, { Component } from 'react';
 
 export default class Entry extends Component {
-  constructor(props) {
-    super(props);
+  getEntry() {
+    return this.props.getSelectedEntry(this.props.params.entryId);
   }
+  componentWillMount() {
+    this.setState({entry: this.getEntry()});
+  }
+  componentWillReceiveProps() {
+    this.setState({entry: this.getEntry()});
+  }
+
   render() {
     return (
       <div>
-        <h3>{this.props.entry.name}</h3>
-        <label>Best:</label> {this.props.entry.best.value}, {this.props.entry.best.date}
-        <label>Most Recent:</label> {this.props.entry.recent.value}, {this.props.entry.recent.date}
+        <h3>{this.state.entry.name}</h3>
+        <label>Best:</label> {this.state.entry.best.value}, {this.state.entry.best.date}
+        <label>Most Recent:</label> {this.state.entry.recent.value}, {this.state.entry.recent.date}
       </div>
     );
   }

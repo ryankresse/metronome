@@ -14,6 +14,7 @@ var _categories = [
     entries: [
     {
       name: 'C-Major',
+      id: 1,
       best: {
         value: 60,
         date: '1/11/1111'
@@ -29,6 +30,7 @@ var _categories = [
     id: 2,
     entries: [
       {
+        id: 1,
         name: 'D-Major',
         best: {
           value: 60,
@@ -38,7 +40,20 @@ var _categories = [
           value: 60,
           date: '1/11/1111'
         }
-      }]
+      },
+      {
+        id: 2,
+        name: 'E-Major',
+        best: {
+          value: 60,
+          date: '1/11/1111'
+        },
+        recent: {
+          value: 60,
+          date: '1/11/1111'
+        }
+      }
+    ]
     }
 ];
 

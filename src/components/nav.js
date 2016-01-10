@@ -7,7 +7,7 @@ let Nav = React.createClass({
     return  this.props.links.map(this.makeLinkMarkup);
   },
   makeLinkMarkup(link, i) {
-    return <li key={i}><Link to={`/category/${link.id}`}>{link.name}</Link></li>
+    return <li key={i}><Link to={`category/${link.id}`}>{link.name}</Link></li>
   },
   render() {
     return (
