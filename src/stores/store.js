@@ -57,6 +57,10 @@ var _categories = [
     }
 ];
 
+var selectedEntry = null;
+var _selectedCategory = null;
+var _recentCountdown = null;
+
 /**
  * Create a TODO item.
  * @param  {string} text The content of the TODO
@@ -90,9 +94,44 @@ function newEntry (name) {
 }
 
 
-function createEntry(name, catId) {
-  var category = _.find(_categories, 'id', catId);
-  category.entries.push(newEntry(name));
+function createEntry(name) {
+  _selectedCategory.entries.push(newEntry(name));
+}
+
+
+function setSelectedEntry (entry) {
+  selectedEntry = entry;
+}
+
+function getSelectedEntry () {
+  return selectedEntry;
+}
+
+function setSelectedCategory (catId) {
+  if (_selectedCategory === null || catId !== _selectedCategory.id) {
+    _selectedCategory = _.find(_categories, 'id', catId);
+    selectedEntry = null;
+  }
+}
+
+function updateEntryFastest(speed) {
+  if (selectedEntry) {
+    selectedEntry.best.value = speed;
+  }
+}
+
+function startOrStopRecentCountdown(startOrStop, tickSpeed) {
+  if (startOrStop === "START") {
+    _recentCountdown = window.setTimeout(updateMostRecentValue.bind(null, tickSpeed), 2000)
+  }
+}
+
+function clearMostRecentTimemout() {
+  window.clearTimeout(_recentCountdown);
+}
+
+function updateMostRecentValue (tickSpeed) {
+  console.log(tickSpeed);
 }
 
 /**
@@ -101,7 +140,7 @@ function createEntry(name, catId) {
  * @param {object} updates An object literal containing only the data to be
  *     updated.
  */
-function update(id, updates) {
+function update(id, update) {
   _todos[id] = assign({}, _todos[id], updates);
 }
 
@@ -154,16 +193,36 @@ var Store = assign({}, EventEmitter.prototype, {
    * Get the entire collection of TODOs.
    * @return {object}
    */
+
+   getState() {
+      return {
+        categories: this.getAllCategories(),
+        selectedEntry: this.getSelectedEntry(),
+        selectedCategory: this.getSelectedCategory(),
+        tickSpeed: this.getTickSpeed()
+      }
+   },
+
   getAllCategories: function() {
     return _categories;
   },
   getCategory: function (id) {
-  var cat =  _.find(_categories, {'id': id })
-  return cat;
+    var cat =  _.find(_categories, {'id': id })
+    return cat;
+  },
+  getSelectedEntry: function () {
+    return selectedEntry || null;
+  },
+
+  getSelectedCategory: function () {
+    return _selectedCategory;
   },
 
   emitChange: function() {
     this.emit(CHANGE_EVENT);
+  },
+  getTickSpeed: function() {
+    return selectedEntry ? selectedEntry.best.value : 60;
   },
 
   /**
@@ -193,12 +252,31 @@ AppDispatcher.register(function(action) {
       break;
 
     case Constants.ENTRY_CREATE:
-          createEntry(action.data.name, action.data.catId);
+          createEntry(action.data.name);
           Store.emitChange();
         break;
 
+
+    case Constants.SET_AS_FASTEST:
+          updateEntryFastest(action.data.speed);
+          Store.emitChange();
+        break;
+
+    case Constants.ENTRY_SELECTED:
+          setSelectedEntry(action.data.entry);
+            Store.emitChange();
+        break;
+
+    case Constants.CATEGORY_SELECTED:
+          setSelectedCategory(action.data.catId);
+          Store.emitChange();
+            break;
+
+    case Constants.START_OR_STOP:
+        startOrStopRecentCountdown(action.data.startOrStop, action.data.tickSpeed);
+          break;
+
     case Constants.SERVER_TEST:
-        console.log(action.data.name)
         Store.emitChange();
         break;
 

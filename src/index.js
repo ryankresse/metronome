@@ -6,12 +6,14 @@ import  Category  from './components/category';
 import  Entry  from './components/entry';
 
 
-render((
-  <Router history={browserHistory}>
-    <Route path="/" component={App}>
-      <Route path="category/:categoryId" component={Category} >
-        <Route path=":entryId" component={Entry} / >
-      </Route>
-    </Route>
-  </Router>),
+render(<App />,
   document.getElementById('root'));
+
+  /*(
+    <Router history={browserHistory}>
+      <Route path="/" component={App}>
+        <Route path="category/:categoryId" component={Category} >
+          <Route path=":entryId" component={Entry} / >
+        </Route>
+      </Route>
+    </Router>)*/

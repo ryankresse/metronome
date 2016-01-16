@@ -1,23 +1,24 @@
 import React, { Component } from 'react';
+import Actions from '../actions/actions';
 
 export default class Entry extends Component {
-  getEntry() {
-    return this.props.getSelectedEntry(this.props.params.entryId);
-  }
-  componentWillMount() {
-    this.setState({entry: this.getEntry()});
-  }
-  componentWillReceiveProps() {
-    this.setState({entry: this.getEntry()});
-  }
 
   render() {
-    return (
+    var template;
+    if (this.props.selectedEntry) {
+      template =
       <div>
-        <h3>{this.state.entry.name}</h3>
-        <label>Best:</label> {this.state.entry.best.value}, {this.state.entry.best.date}
-        <label>Most Recent:</label> {this.state.entry.recent.value}, {this.state.entry.recent.date}
+        <h3>{this.props.selectedEntry.name}</h3>
+        <label>Best:</label> {this.props.selectedEntry.best.value}, {this.props.selectedEntry.best.date}
+        <label>Most Recent:</label> {this.props.selectedEntry.recent.value}, {this.props.selectedEntry.recent.date}
       </div>
+    }
+    else {
+      template = <span></span>
+    }
+
+    return (
+      <div>{template}</div>
     );
   }
 }

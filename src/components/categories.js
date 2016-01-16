@@ -13,15 +13,17 @@ export default class Categories extends Component {
   }
 
   render() {
-    let createCategory = function(category, index) {
-      return <li key={index}><Category key={index} category={category} /></li>
-    };
+
     return (
       <div>
-        <ul>{this.props.categories.map(createCategory)}</ul>
+
         <input type="text" id="newCat" placeholder="Create new category"/>
         <button onClick={this.createNewCategory}>Create category</button>
      </div>
     );
   }
 }
+  //<ul>{this.props.categories.map(createCategory)}</ul>
+  //let createCategory = function(category, index) {
+    //return <li key={index}><Category key={index} category={category} /></li>
+  //};

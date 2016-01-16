@@ -9,17 +9,49 @@ let actions = {
         text: name
       });
     },
-    createEntry: function(name, catId) {
+    setAsFastest: function(speed) {
+        Dispatcher.dispatch({
+          actionType: Constants.SET_AS_FASTEST,
+          data: {
+            speed: speed
+          }
+        });
+      },
+    createEntry: function(name) {
         Dispatcher.dispatch({
           actionType: Constants.ENTRY_CREATE,
           data: {
             name: name,
+          }
+        });
+        //var data = {name: name};
+      //  WebApi.createEntry(data);
+      },
+
+      onEntrySelected(entry) {
+        Dispatcher.dispatch({
+          actionType: Constants.ENTRY_SELECTED,
+          data: {
+            entry: entry
+          }
+        });
+      },
+      onCategorySelected(catId) {
+        Dispatcher.dispatch({
+          actionType: Constants.CATEGORY_SELECTED,
+          data: {
             catId: catId
           }
         });
-        var data = {name: name};
-        WebApi.createEntry(data);
-
+      },
+      onStartStopClick(startOrStop, tickSpeed) {
+        Dispatcher.dispatch({
+          actionType: Constants.START_OR_STOP,
+          data: {
+            startOrStop: startOrStop,
+            tickSpeed: tickSpeed
+          }
+        });
       }
 
 

@@ -5,47 +5,37 @@ import Store from '../stores/store';
 import { Link } from 'react-router'
 
 
-
 export default React.createClass({
-  setCategory() {
-    this.setState({category: Store.getCategory(parseInt(this.props.params.categoryId))});
-  },
-  componentWillMount() {
-    this.setCategory();
-  },
-  componentWillReceiveProps: function(newProps) {
-    if (parseInt(newProps.params.categoryId) === this.state.category.id) return;
-    this.setState({category: Store.getCategory(parseInt(newProps.params.categoryId))});
-  },
-  createNewEntry:function (id) {
+
+  onCreateNewEntryClick: function () {
     var name = document.getElementById('newEntry').value;
-    Actions.createEntry(name, id);
+    if (name.length) {
+      Actions.createEntry(name);
+    }
   },
-  getNewEntryValue: function() {
-    return document.getElementById('newEntry').value;
+  onEntrySelected(entry) {
+    this.props.onEntrySelected(entry);
   },
   createEntryLinks(entry, i) {
-    return <li key={i}><Link to={`category/${this.state.category.id}/${entry.id}`}>{entry.name}</Link></li>
-  },
-  getSelectedEntry(entryId) {
-    var entry = _.find(this.state.category.entries, {'id': parseInt(entryId)});
-    return entry;
+    return <li key={i}><a onClick={this.onEntrySelected.bind(this, entry)}>{entry.name}</a></li>
   },
   render: function () {
-    var createEntry = function (entry, index) {
-      return <li key={index}><Entry key={index} entry={entry} /></li>
+    var template;
+    if (this.props.selectedCategory) {
+      template =
+      <div>
+        <h1>{this.props.selectedCategory.name}</h1>
+          <ul>{this.props.selectedCategory.entries.map(this.createEntryLinks)}</ul>
+
+            <input type="text" id="newEntry" placeholder="Create entry"/>
+          <button onClick={this.onCreateNewEntryClick}>Create entry</button>
+        </div>
+    }
+    else {
+      template = <span>No category</span>
     }
     return (
-      <div>
-        <h1>{this.state.category.name}</h1>
-          <ul>{this.state.category.entries.map(this.createEntryLinks)}</ul>
-          <input type="text" id="newEntry" placeholder="Create entry"/>
-          <button onClick={this.createNewEntry.bind(this, this.state.category.id)}>Create entry</button>
-          {this.props.children && React.cloneElement(this.props.children, {
-              getSelectedEntry: this.getSelectedEntry
-            })}
-        </div>
-
+      <div>{template}</div>
     );
   }
 });
