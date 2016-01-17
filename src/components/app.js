@@ -6,6 +6,7 @@ import Category from './category';
 import Store from '../stores/store';
 import Actions from '../actions/actions';
 import Entry from './entry';
+import CreateCategory from './create-category';
 
 
 /*$.post('/test', {data: 'hello'}, function (res) {
@@ -39,8 +40,8 @@ let App = React.createClass({
   _buildCategoryLinks: function() {
     return this.state.categories.map(cat => ({name: cat.name, id: cat.id}));
   },
-  onEntrySelected(entry) {
-    Actions.onEntrySelected(entry);
+  onEntrySelected(entryId) {
+    Actions.onEntrySelected(entryId);
   },
   onCategorySelected(catId) {
     Actions.onCategorySelected(catId);
@@ -55,6 +56,9 @@ let App = React.createClass({
     if (!this.state.selectedEntry) return;
     Actions.onStartStopClick(startOrStop, this.state.tickSpeed);
   },
+  onCreateCatClick(catName) {
+    Actions.createCategory(catName);
+  },
   render: function () {
     var catLinks = this._buildCategoryLinks();
     return (
@@ -66,6 +70,7 @@ let App = React.createClass({
           onStartStopClick={this.onStartStopClick}/>
 
         <Nav onCategorySelected={this.onCategorySelected} links= {catLinks}/>
+        <CreateCategory onCreateCatClick={this.onCreateCatClick} />
         <Category onEntrySelected={this.onEntrySelected} onCreateNewEntryClick={this.onCreateNewEntryClick} selectedCategory={this.state.selectedCategory} />
         <Entry selectedEntry={this.state.selectedEntry} />
       </div>

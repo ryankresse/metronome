@@ -28,11 +28,11 @@ let actions = {
       //  WebApi.createEntry(data);
       },
 
-      onEntrySelected(entry) {
+      onEntrySelected(entryId) {
         Dispatcher.dispatch({
           actionType: Constants.ENTRY_SELECTED,
           data: {
-            entry: entry
+            entryId: entryId
           }
         });
       },

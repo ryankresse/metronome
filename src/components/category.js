@@ -10,14 +10,14 @@ export default React.createClass({
   onCreateNewEntryClick: function () {
     var name = document.getElementById('newEntry').value;
     if (name.length) {
-      Actions.createEntry(name);
+      this.props.onCreateNewEntryClick(name);
     }
   },
   onEntrySelected(entry) {
-    this.props.onEntrySelected(entry);
+    this.props.onEntrySelected(entry.id);
   },
   createEntryLinks(entry, i) {
-    return <li key={i}><a onClick={this.onEntrySelected.bind(this, entry)}>{entry.name}</a></li>
+    return <li key={i}><a href="#" onClick={this.onEntrySelected.bind(this, entry)}>{entry.name}</a></li>
   },
   render: function () {
     var template;

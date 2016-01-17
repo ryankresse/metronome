@@ -60,6 +60,7 @@ var _categories = [
 var selectedEntry = null;
 var _selectedCategory = null;
 var _recentCountdown = null;
+var _tickSpeed = 60;
 
 /**
  * Create a TODO item.
@@ -99,8 +100,9 @@ function createEntry(name) {
 }
 
 
-function setSelectedEntry (entry) {
-  selectedEntry = entry;
+function setSelectedEntry (entryId) {
+  selectedEntry = _.find(_selectedCategory.entries, 'id', entryId);
+  _tickSpeed = selectedEntry.best.value;
 }
 
 function getSelectedEntry () {
@@ -120,7 +122,8 @@ function updateEntryFastest(speed) {
   }
 }
 
-function startOrStopRecentCountdown(startOrStop, tickSpeed) {
+function onStartOrStop(startOrStop, tickSpeed) {
+  _tickSpeed = tickSpeed;
   if (startOrStop === "START") {
     _recentCountdown = window.setTimeout(updateMostRecentValue.bind(null, tickSpeed), 2000)
   }
@@ -130,8 +133,9 @@ function clearMostRecentTimemout() {
   window.clearTimeout(_recentCountdown);
 }
 
-function updateMostRecentValue (tickSpeed) {
-  console.log(tickSpeed);
+function updateMostRecentValue (speed) {
+  selectedEntry.recent.value = speed;
+  Store.emitChange();
 }
 
 /**
@@ -222,8 +226,8 @@ var Store = assign({}, EventEmitter.prototype, {
     this.emit(CHANGE_EVENT);
   },
   getTickSpeed: function() {
-    return selectedEntry ? selectedEntry.best.value : 60;
-  },
+    return _tickSpeed || 60;
+},
 
   /**
    * @param {function} callback
@@ -263,7 +267,7 @@ AppDispatcher.register(function(action) {
         break;
 
     case Constants.ENTRY_SELECTED:
-          setSelectedEntry(action.data.entry);
+          setSelectedEntry(action.data.entryId);
             Store.emitChange();
         break;
 
@@ -273,8 +277,8 @@ AppDispatcher.register(function(action) {
             break;
 
     case Constants.START_OR_STOP:
-        startOrStopRecentCountdown(action.data.startOrStop, action.data.tickSpeed);
-          break;
+        onStartOrStop(action.data.startOrStop, action.data.tickSpeed);
+        break;
 
     case Constants.SERVER_TEST:
         Store.emitChange();
