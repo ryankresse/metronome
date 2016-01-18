@@ -25,8 +25,8 @@ let App = React.createClass({
   componentDidMount: function() {
     Store.addChangeListener(this._onChange);
   },
-  onTickSpeedInputChange: function(e) {
-    this.setState({categories: this.state.categories, tickSpeed: e.target.value});
+  onTickSpeedInputChange: function(speed) {
+    Actions.onTickSpeedInputChange(speed);
   },
   componentWillUnmount: function() {
     Store.removeChangeListener(this._onChange);
@@ -52,9 +52,8 @@ let App = React.createClass({
   startRecentCountdown() {
     Actions.startRecentCountdown();
   },
-  onStartStopClick(startOrStop) {
-    if (!this.state.selectedEntry) return;
-    Actions.onStartStopClick(startOrStop, this.state.tickSpeed);
+  onStartStopClick(newSpeed) {
+    Actions.onStartStopClick(newSpeed);
   },
   onCreateCatClick(catName) {
     Actions.createCategory(catName);
@@ -67,7 +66,9 @@ let App = React.createClass({
           onSetAsFastestClick={this.onSetAsFastestClick}
           onTickSpeedInputChange={this.onTickSpeedInputChange}
           tickSpeed={this.state.tickSpeed}
-          onStartStopClick={this.onStartStopClick}/>
+          onStartStopClick={this.onStartStopClick}
+          btnText={this.state.btnText}
+          />
 
         <Nav onCategorySelected={this.onCategorySelected} links= {catLinks}/>
         <CreateCategory onCreateCatClick={this.onCreateCatClick} />
@@ -78,13 +79,15 @@ let App = React.createClass({
   }
 });
 
-///how should the tickspeed be handled?
-//the metronome should handle the actual tick sound
-//when the startOrStop button is clicked, it should call a method on app
-//passing a parameter indicating whether it's a start or stop click
-//if there is a selected entry, app should call an action
-//the store should start a countdown, and once that countdown has passed, it should
-//update the most recent value and date of the selected entry
-//if the parameter, is a stop tick event, it should clear that countdown
-//on selectEntry or selectCategory click, it should clear the countdown if it's going
+//first let's get the tick speed to change when a user selects an entry
+//the simplest way to do this might be to listen for the onReceiveProps eve
+//the issue is that if you receive the notification that a new entry has been selected from the props
+//event. the issue is that you're receiving that event twice. the willReceiveProps event,
+//stops the tick
+//maybe when you receive the props, if the tick is going, you update the value slider and the tickInterval
+//but when the input changes, you let the component handle updating the slider value itself
+//may need to rearchitect, or not?
+//when the tickInterval is changed, if there is a selectedEntry, you always want to reset the most recent countDown
+//
+
 export default App;

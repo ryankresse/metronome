@@ -48,8 +48,15 @@ let actions = {
         Dispatcher.dispatch({
           actionType: Constants.START_OR_STOP,
           data: {
-            startOrStop: startOrStop,
             tickSpeed: tickSpeed
+          }
+        });
+      },
+      onTickSpeedInputChange(speed) {
+        Dispatcher.dispatch({
+          actionType: Constants.SPEED_CHANGE,
+          data: {
+            speed: speed
           }
         });
       }

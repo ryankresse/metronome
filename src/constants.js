@@ -4,7 +4,8 @@ let constants = {
     SET_AS_FASTEST: 'setAsFastest',
     ENTRY_SELECTED: 'entrySelected',
     CATEGORY_SELECTED: 'categorySelected',
-    START_OR_STOP: 'startOrStop'
+    START_OR_STOP: 'startOrStop',
+    SPEED_CHANGE: 'speedChange'
 };
 
 export default constants;

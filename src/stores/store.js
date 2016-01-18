@@ -16,11 +16,11 @@ var _categories = [
       name: 'C-Major',
       id: 1,
       best: {
-        value: 60,
+        value: 120,
         date: '1/11/1111'
       },
       recent: {
-        value: 60,
+        value: 150,
         date: '1/11/1111'
       }
     }],
@@ -33,7 +33,7 @@ var _categories = [
         id: 1,
         name: 'D-Major',
         best: {
-          value: 60,
+          value: 90,
           date: '1/11/1111'
         },
         recent: {
@@ -49,7 +49,7 @@ var _categories = [
           date: '1/11/1111'
         },
         recent: {
-          value: 60,
+          value: 50,
           date: '1/11/1111'
         }
       }
@@ -61,6 +61,9 @@ var selectedEntry = null;
 var _selectedCategory = null;
 var _recentCountdown = null;
 var _tickSpeed = 60;
+var _tickInterval = null;
+var btnText = "Start";
+var _changeTickSpeedTimeout = null;
 
 /**
  * Create a TODO item.
@@ -103,16 +106,22 @@ function createEntry(name) {
 function setSelectedEntry (entryId) {
   selectedEntry = _.find(_selectedCategory.entries, 'id', entryId);
   _tickSpeed = selectedEntry.best.value;
+  if (_tickInterval) {
+    changeTickInterval(_tickSpeed);
+    startOrStopRecentCountdown(true);
+  }
 }
 
 function getSelectedEntry () {
   return selectedEntry;
 }
 
-function setSelectedCategory (catId) {
+
+function onCategorySelected(catId) {
   if (_selectedCategory === null || catId !== _selectedCategory.id) {
     _selectedCategory = _.find(_categories, 'id', catId);
     selectedEntry = null;
+    startOrStopRecentCountdown(false);
   }
 }
 
@@ -122,12 +131,66 @@ function updateEntryFastest(speed) {
   }
 }
 
-function onStartOrStop(startOrStop, tickSpeed) {
-  _tickSpeed = tickSpeed;
+function onStartOrStop(startOrStop) {
+  if (_tickInterval) {
+    _tickInterval = stopTick();
+    btnText = "Start";
+    startOrStopRecentCountdown(false);
+  }
+  else {
+    _tickInterval = startTick(_tickSpeed);
+    btnText = "Stop";
+    startOrStopRecentCountdown(true);
+  }
+  /*window.clearTimeout(_recentCountdown);
   if (startOrStop === "START") {
-    _recentCountdown = window.setTimeout(updateMostRecentValue.bind(null, tickSpeed), 2000)
+    _recentCountdown = window.setTimeout(updateMostRecentValue.bind(null, tickSpeed), 5000)
+  }*/
+}
+
+function startOrStopRecentCountdown(isStart) {
+  window.clearTimeout(_recentCountdown);
+  _recentCountdown = null;
+
+  if (isStart && selectedEntry) {
+      _recentCountdown = window.setTimeout(updateMostRecentValue.bind(null, _tickSpeed), 5000);
   }
 }
+
+function onSpeedChange(speed) {
+  if (_tickInterval && speed !== _tickSpeed) {
+      resetChangeTickTimeout(speed);
+  }
+  _tickSpeed = speed;
+}
+
+function resetChangeTickTimeout (speed) {
+  window.clearTimeout(_changeTickSpeedTimeout);
+  _changeTickSpeedTimeout = window.setTimeout(changeTickInterval.bind(null, speed), 500);
+}
+
+function changeTickInterval (speed) {
+    _tickInterval = stopTick();
+    _tickInterval = startTick(speed);
+    startOrStopRecentCountdown(true);
+}
+
+
+function startTick (speed) {
+    var interval = (60 / speed) * 1000;
+    var tick = new Audio('tick.mp3');
+    return setInterval(function(){
+      tick.play();
+    }, interval);
+}
+
+function stopTick () {
+  window.clearTimeout(_tickInterval);
+  return null;
+}
+
+
+
 
 function clearMostRecentTimemout() {
   window.clearTimeout(_recentCountdown);
@@ -135,6 +198,7 @@ function clearMostRecentTimemout() {
 
 function updateMostRecentValue (speed) {
   selectedEntry.recent.value = speed;
+  _changeTickSpeedTimeout = null;
   Store.emitChange();
 }
 
@@ -203,7 +267,8 @@ var Store = assign({}, EventEmitter.prototype, {
         categories: this.getAllCategories(),
         selectedEntry: this.getSelectedEntry(),
         selectedCategory: this.getSelectedCategory(),
-        tickSpeed: this.getTickSpeed()
+        tickSpeed: this.getTickSpeed(),
+        btnText: this.getBtnText()
       }
    },
 
@@ -228,6 +293,10 @@ var Store = assign({}, EventEmitter.prototype, {
   getTickSpeed: function() {
     return _tickSpeed || 60;
 },
+getBtnText: function() {
+  return btnText;
+},
+
 
   /**
    * @param {function} callback
@@ -272,12 +341,18 @@ AppDispatcher.register(function(action) {
         break;
 
     case Constants.CATEGORY_SELECTED:
-          setSelectedCategory(action.data.catId);
+          onCategorySelected(action.data.catId);
           Store.emitChange();
             break;
 
     case Constants.START_OR_STOP:
-        onStartOrStop(action.data.startOrStop, action.data.tickSpeed);
+        onStartOrStop(action.data.tickSpeed);
+        Store.emitChange();
+        break;
+
+   case Constants.SPEED_CHANGE:
+        onSpeedChange(action.data.speed);
+        Store.emitChange();
         break;
 
     case Constants.SERVER_TEST:
