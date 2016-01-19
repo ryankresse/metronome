@@ -60,20 +60,34 @@ let App = React.createClass({
   },
   render: function () {
     var catLinks = this._buildCategoryLinks();
+    var containerStyle = {"marginTop": "20px"};
     return (
-      <div>
-        <Metronome
-          onSetAsFastestClick={this.onSetAsFastestClick}
-          onTickSpeedInputChange={this.onTickSpeedInputChange}
-          tickSpeed={this.state.tickSpeed}
-          onStartStopClick={this.onStartStopClick}
-          btnText={this.state.btnText}
-          />
+      <div className="container" style={containerStyle}>
+        <div className="row">
+          <div className="col-xs-4">
+            <div className="row">
+              <div className="col-xs-7">
+                <Nav onCategorySelected={this.onCategorySelected} links= {catLinks}/>
+              </div>
+              <div className="col-xs-5">
+                <Category onEntrySelected={this.onEntrySelected} onCreateNewEntryClick={this.onCreateNewEntryClick} selectedCategory={this.state.selectedCategory} />
+              </div>
+             </div>
+          </div>
+          <div className="col-xs-8">
+            <Metronome
+                onSetAsFastestClick={this.onSetAsFastestClick}
+                onTickSpeedInputChange={this.onTickSpeedInputChange}
+                tickSpeed={this.state.tickSpeed}
+                onStartStopClick={this.onStartStopClick}
+                btnText={this.state.btnText}
+                />
 
-        <Nav onCategorySelected={this.onCategorySelected} links= {catLinks}/>
-        <CreateCategory onCreateCatClick={this.onCreateCatClick} />
-        <Category onEntrySelected={this.onEntrySelected} onCreateNewEntryClick={this.onCreateNewEntryClick} selectedCategory={this.state.selectedCategory} />
-        <Entry selectedEntry={this.state.selectedEntry} />
+
+              <CreateCategory onCreateCatClick={this.onCreateCatClick} />
+              <Entry selectedEntry={this.state.selectedEntry} />
+            </div>
+          </div>
       </div>
     );
   }

@@ -5,24 +5,41 @@ import Actions from '../actions/actions';
 
 
 let Nav = React.createClass({
-  createLinks() {
-    return this.props.links.map(this.makeLinkMarkup);
+  createPanels() {
+    return this.props.links.map(this.makePanelMarkup);
   },
   onCategorySelected(cat) {
     this.props.onCategorySelected(cat.id);
   },
-  makeLinkMarkup(link, i) {
-    return <li key={i}><a href="#" onClick={this.onCategorySelected.bind(this, link)}>{link.name}</a></li>
+  makePanelMarkup(link, i) {
+    return (
+    <div key={i} className="panel panel-default"
+      onClick={this.onCategorySelected.bind(this, link)}
+      style={styles.outerPanelDiv}>
+      <div style={styles.panelBody} class="panel-body">
+        {link.name}
+      </div>
+    </div>
+  )
   },
   render() {
-    var links = this.createLinks();
+    var panels = this.createPanels();
     return (
       <div>
-      <h1>Nav</h1>
-      <ul>{links}</ul>
+      {panels}
       </div>
     );
   }
 });
+
+var styles = {
+  outerPanelDiv: {
+      "cursor": "pointer",
+      "marginBottom": "0px"
+  },
+  panelBody: {
+    padding: "10px 0px 10px 0px"
+  }
+}
 
 export default Nav;

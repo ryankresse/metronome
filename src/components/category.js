@@ -23,8 +23,7 @@ export default React.createClass({
     var template;
     if (this.props.selectedCategory) {
       template =
-      <div>
-        <h1>{this.props.selectedCategory.name}</h1>
+      <div >
           <ul>{this.props.selectedCategory.entries.map(this.createEntryLinks)}</ul>
 
             <input type="text" id="newEntry" placeholder="Create entry"/>
