@@ -6,8 +6,8 @@ var Constants = require('../constants');
 var assign = require('object-assign');
 
 var CHANGE_EVENT = 'change';
-
-var _categories = [
+var _loaded = false;
+/*var _categories = [
   {
     name: "Scales",
     id: 1,
@@ -53,10 +53,9 @@ var _categories = [
           date: '1/11/1111'
         }
       }
-    ]
-    }
-];
-
+    ]}
+  ];*/
+  var _categories = [];
 var selectedEntry = null;
 var _selectedCategory = null;
 var _recentCountdown = null;
@@ -65,13 +64,29 @@ var _tickInterval = null;
 var btnText = "Start";
 var _changeTickSpeedTimeout = null;
 
-/**
- * Create a TODO item.
- * @param  {string} text The content of the TODO
- */
+ function loadCats () {
+   console.log('hello');
+   $.ajax({
+      url:'/loadCategories',
+      dataType: 'json',
+      cache: false})
+      .done(function(data){
+        _categories = data.categories;
+        _loaded = true;
+        Store.emitChange();
+      }).
+      fail(function(err){
+        console.error(err);
+      });
+ }
+
+
+
 function createCategory(name) {
   _categories.push(newCategory(name));
 }
+
+
 
 function newCategory (name) {
   return {
@@ -102,10 +117,19 @@ function createEntry(name) {
   _selectedCategory.entries.push(newEntry(name));
 }
 
+function deleteEntry(entryId) {
+  var entryToDelete = _.find(_selectedCategory.entries, 'id', entryId);
+  if (entryToDelete === selectedEntry) {
+    selectedEntry = null;
+    startOrStopRecentCountdown(false);
+  }
+  _selectedCategory.entries = _.without(_selectedCategory.entries, entryToDelete);
+}
+
 
 function setSelectedEntry (entryId) {
   selectedEntry = _.find(_selectedCategory.entries, 'id', entryId);
-  _tickSpeed = selectedEntry.best.value;
+  _tickSpeed = selectedEntry.best.value || 60;
   if (_tickInterval) {
     changeTickInterval(_tickSpeed);
     startOrStopRecentCountdown(true);
@@ -125,6 +149,18 @@ function onCategorySelected(catId) {
   }
 }
 
+function onCategoryDeleted(catId) {
+  var catToDelete = _.find(_categories, 'id', catId);
+  if (catToDelete === _selectedCategory) {
+    _selectedCategory = null;
+    selectedEntry = null;
+    startOrStopRecentCountdown(false);
+  }
+  _categories = _.without(_categories, catToDelete);
+}
+
+
+
 function updateEntryFastest(speed) {
   if (selectedEntry) {
     selectedEntry.best.value = speed;
@@ -142,10 +178,6 @@ function onStartOrStop(startOrStop) {
     btnText = "Stop";
     startOrStopRecentCountdown(true);
   }
-  /*window.clearTimeout(_recentCountdown);
-  if (startOrStop === "START") {
-    _recentCountdown = window.setTimeout(updateMostRecentValue.bind(null, tickSpeed), 5000)
-  }*/
 }
 
 function startOrStopRecentCountdown(isStart) {
@@ -189,9 +221,6 @@ function stopTick () {
   return null;
 }
 
-
-
-
 function clearMostRecentTimemout() {
   window.clearTimeout(_recentCountdown);
 }
@@ -200,46 +229,6 @@ function updateMostRecentValue (speed) {
   selectedEntry.recent.value = speed;
   _changeTickSpeedTimeout = null;
   Store.emitChange();
-}
-
-/**
- * Update a TODO item.
- * @param  {string} id
- * @param {object} updates An object literal containing only the data to be
- *     updated.
- */
-function update(id, update) {
-  _todos[id] = assign({}, _todos[id], updates);
-}
-
-/**
- * Update all of the TODO items with the same object.
- * @param  {object} updates An object literal containing only the data to be
- *     updated.
- */
-function updateAll(updates) {
-  for (var id in _todos) {
-    update(id, updates);
-  }
-}
-
-/**
- * Delete a TODO item.
- * @param  {string} id
- */
-function destroy(id) {
-  delete _todos[id];
-}
-
-/**
- * Delete all the completed TODO items.
- */
-function destroyCompleted() {
-  for (var id in _todos) {
-    if (_todos[id].complete) {
-      destroy(id);
-    }
-  }
 }
 
 var Store = assign({}, EventEmitter.prototype, {
@@ -273,6 +262,9 @@ var Store = assign({}, EventEmitter.prototype, {
    },
 
   getAllCategories: function() {
+    if (!_loaded) {
+      loadCats();
+    }
     return _categories;
   },
   getCategory: function (id) {
@@ -319,6 +311,11 @@ AppDispatcher.register(function(action) {
 
   switch(action.actionType) {
 
+    case Constants.LOAD_CATS:
+        loadCats();
+        Store.emitChange();
+      break;
+
     case Constants.CAT_CREATE:
         createCategory(action.text);
         Store.emitChange();
@@ -329,6 +326,10 @@ AppDispatcher.register(function(action) {
           Store.emitChange();
         break;
 
+    case Constants.ENTRY_DELETED:
+          deleteEntry(action.data.entryId);
+          Store.emitChange();
+        break;
 
     case Constants.SET_AS_FASTEST:
           updateEntryFastest(action.data.speed);
@@ -342,6 +343,11 @@ AppDispatcher.register(function(action) {
 
     case Constants.CATEGORY_SELECTED:
           onCategorySelected(action.data.catId);
+          Store.emitChange();
+            break;
+
+    case Constants.CATEGORY_DELETED:
+          onCategoryDeleted(action.data.catId);
           Store.emitChange();
             break;
 

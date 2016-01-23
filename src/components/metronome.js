@@ -45,12 +45,6 @@ export default React.createClass({
   onTickSpeedInputChange(e) {
     var newSpeed = e.target.value;
     this.props.onTickSpeedInputChange(newSpeed);
-
-    /*if (this.state.tickInterval) {
-      window.clearTimeout(emitUpdateCountdownEventTimeout);
-      emitUpdateCountdownEventTimeout =
-      window.setTimeout(this.createNewTickInterval.bind(this, newSpeed), 2000);
-    }*/
   },
 
   emitStartRecentCountdown(speed) {
@@ -92,10 +86,3 @@ function stopTick (bpm) {
     document.getElementById('btn').innerText = "Start"
     return null;
 }
-
-
-
-//when the user changes the speed
-//-we always want to update the tickSpeed of the state
-//- if there's a tickInterval, we want to update that
-// - if there's a selectedEntry, we want to update the most recent countdown

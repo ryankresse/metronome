@@ -15,13 +15,61 @@ app.use(require('webpack-dev-middleware')(compiler, {
 
 app.use(require('webpack-hot-middleware')(compiler));
 
-app.get('*', function(req, res) {
+app.get('/', function(req, res) {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.post('/test', function(req, res) {
-  console.log(req.body);
-  res.send({name: "R"});
+app.get('/loadCategories', function(req, res) {
+  var _categories = [
+    {
+      name: "Scales",
+      id: 1,
+      entries: [
+      {
+        name: 'C-Major',
+        id: 1,
+        best: {
+          value: 120,
+          date: '1/11/1111'
+        },
+        recent: {
+          value: 150,
+          date: '1/11/1111'
+        }
+      }],
+    },
+    {
+      name: "Arpeggios",
+      id: 2,
+      entries: [
+        {
+          id: 1,
+          name: 'D-Major',
+          best: {
+            value: 90,
+            date: '1/11/1111'
+          },
+          recent: {
+            value: 60,
+            date: '1/11/1111'
+          }
+        },
+        {
+          id: 2,
+          name: 'E-Major',
+          best: {
+            value: 60,
+            date: '1/11/1111'
+          },
+          recent: {
+            value: 50,
+            date: '1/11/1111'
+          }
+        }
+      ]
+      }
+  ];
+  res.json({categories: _categories});
 });
 
 

@@ -12,19 +12,42 @@ export default React.createClass({
     if (name.length) {
       this.props.onCreateNewEntryClick(name);
     }
+    document.getElementById('newEntry').value = "";
   },
   onEntrySelected(entry) {
     this.props.onEntrySelected(entry.id);
   },
+
+  onDeleteEntryClick(entry, e) {
+    e.stopPropagation();
+    this.props.onDeleteEntry(entry.id);
+  },
   createEntryLinks(entry, i) {
-    return <li key={i}><a href="#" onClick={this.onEntrySelected.bind(this, entry)}>{entry.name}</a></li>
+    var classNames = "panel panel-default outer-panel-div"
+    if (this.props.selectedEntry && (entry.id === this.props.selectedEntry.id)) {
+      classNames += " selected-entry";
+    }
+    //return <li key={i}><a href="#" onClick={this.onEntrySelected.bind(this, entry)}>{entry.name}</a></li>
+
+    return (
+    <div key={i} className={classNames}
+      onClick={this.onEntrySelected.bind(this, entry)}>
+      <div className="entry-panel-body">
+        {entry.name}
+        <span onClick={this.onDeleteEntryClick.bind(this, entry)}
+          className="pull-right glyphicon glyphicon-remove">
+        </span>
+      </div>
+
+    </div>
+    )
   },
   render: function () {
     var template;
     if (this.props.selectedCategory) {
       template =
       <div >
-          <ul>{this.props.selectedCategory.entries.map(this.createEntryLinks)}</ul>
+        {this.props.selectedCategory.entries.map(this.createEntryLinks)}
 
             <input type="text" id="newEntry" placeholder="Create entry"/>
           <button onClick={this.onCreateNewEntryClick}>Create entry</button>

@@ -11,13 +11,26 @@ let Nav = React.createClass({
   onCategorySelected(cat) {
     this.props.onCategorySelected(cat.id);
   },
+
+  onDeleteCatClick(cat, e) {
+    e.stopPropagation();
+    this.props.onDeleteCategory(cat.id);
+  },
+
   makePanelMarkup(link, i) {
+    var classNames = "panel panel-default outer-panel-div"
+    if (this.props.selectedCategory && (link.id === this.props.selectedCategory.id)) {
+      classNames += " selected-category";
+    }
+
+
     return (
-    <div key={i} className="panel panel-default"
-      onClick={this.onCategorySelected.bind(this, link)}
-      style={styles.outerPanelDiv}>
-      <div style={styles.panelBody} class="panel-body">
+    <div key={i} className={classNames}
+      onClick={this.onCategorySelected.bind(this, link)}>
+      <div className="category-panel-body">
         {link.name}
+        <span onClick={this.onDeleteCatClick.bind(this, link)} className="pull-right glyphicon glyphicon-remove"></span>
+
       </div>
     </div>
   )

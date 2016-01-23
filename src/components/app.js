@@ -58,23 +58,39 @@ let App = React.createClass({
   onCreateCatClick(catName) {
     Actions.createCategory(catName);
   },
+  onDeleteCategory(catId) {
+    Actions.onDeleteCategory(catId);
+  },
+  onDeleteEntry(entryId) {
+    Actions.onDeleteEntry(entryId);
+  },
   render: function () {
     var catLinks = this._buildCategoryLinks();
     var containerStyle = {"marginTop": "20px"};
     return (
       <div className="container" style={containerStyle}>
         <div className="row">
-          <div className="col-xs-4">
+          <div className="col-xs-5">
             <div className="row">
-              <div className="col-xs-7">
-                <Nav onCategorySelected={this.onCategorySelected} links= {catLinks}/>
+              <div className="col-xs-6">
+                <Nav
+                  onCategorySelected={this.onCategorySelected}
+                  selectedCategory={this.state.selectedCategory}
+                  onDeleteCategory={this.onDeleteCategory}
+                  links= {catLinks}/>
+                <CreateCategory onCreateCatClick={this.onCreateCatClick} />
               </div>
-              <div className="col-xs-5">
-                <Category onEntrySelected={this.onEntrySelected} onCreateNewEntryClick={this.onCreateNewEntryClick} selectedCategory={this.state.selectedCategory} />
+              <div className="col-xs-6">
+                <Category
+                  onEntrySelected={this.onEntrySelected}
+                  onCreateNewEntryClick={this.onCreateNewEntryClick}
+                  onDeleteEntry={this.onDeleteEntry}
+                  selectedCategory={this.state.selectedCategory}
+                  selectedEntry={this.state.selectedEntry}/>
               </div>
              </div>
           </div>
-          <div className="col-xs-8">
+          <div className="col-xs-7">
             <Metronome
                 onSetAsFastestClick={this.onSetAsFastestClick}
                 onTickSpeedInputChange={this.onTickSpeedInputChange}
@@ -84,7 +100,7 @@ let App = React.createClass({
                 />
 
 
-              <CreateCategory onCreateCatClick={this.onCreateCatClick} />
+
               <Entry selectedEntry={this.state.selectedEntry} />
             </div>
           </div>
@@ -92,16 +108,5 @@ let App = React.createClass({
     );
   }
 });
-
-//first let's get the tick speed to change when a user selects an entry
-//the simplest way to do this might be to listen for the onReceiveProps eve
-//the issue is that if you receive the notification that a new entry has been selected from the props
-//event. the issue is that you're receiving that event twice. the willReceiveProps event,
-//stops the tick
-//maybe when you receive the props, if the tick is going, you update the value slider and the tickInterval
-//but when the input changes, you let the component handle updating the slider value itself
-//may need to rearchitect, or not?
-//when the tickInterval is changed, if there is a selectedEntry, you always want to reset the most recent countDown
-//
 
 export default App;

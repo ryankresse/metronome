@@ -3,6 +3,12 @@ let Constants = require('../constants');
 let WebApi = require('../utils/web-api');
 
 let actions = {
+  loadCategories: function() {
+      Dispatcher.dispatch({
+        actionType: Constants.LOAD_CATS,
+        text: name
+      });
+    },
   createCategory: function(name) {
       Dispatcher.dispatch({
         actionType: Constants.CAT_CREATE,
@@ -24,9 +30,16 @@ let actions = {
             name: name,
           }
         });
-        //var data = {name: name};
-      //  WebApi.createEntry(data);
       },
+
+      onDeleteEntry: function(entryId) {
+          Dispatcher.dispatch({
+            actionType: Constants.ENTRY_DELETED,
+            data: {
+              entryId: entryId,
+            }
+          });
+        },
 
       onEntrySelected(entryId) {
         Dispatcher.dispatch({
@@ -39,6 +52,14 @@ let actions = {
       onCategorySelected(catId) {
         Dispatcher.dispatch({
           actionType: Constants.CATEGORY_SELECTED,
+          data: {
+            catId: catId
+          }
+        });
+      },
+      onDeleteCategory(catId) {
+        Dispatcher.dispatch({
+          actionType: Constants.CATEGORY_DELETED,
           data: {
             catId: catId
           }
