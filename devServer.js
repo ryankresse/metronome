@@ -2,7 +2,6 @@ var path = require('path');
 var express = require('express');
 var webpack = require('webpack');
 var config = require('./webpack.config.dev');
-
 var app = express();
 var compiler = webpack(config);
 
@@ -19,60 +18,9 @@ app.get('/', function(req, res) {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 
-app.get('/loadCategories', function(req, res) {
-  var _categories = [
-    {
-      name: "Scales",
-      id: 1,
-      entries: [
-      {
-        name: 'C-Major',
-        id: 1,
-        best: {
-          value: 120,
-          date: '1/11/1111'
-        },
-        recent: {
-          value: 150,
-          date: '1/11/1111'
-        }
-      }],
-    },
-    {
-      name: "Arpeggios",
-      id: 2,
-      entries: [
-        {
-          id: 1,
-          name: 'D-Major',
-          best: {
-            value: 90,
-            date: '1/11/1111'
-          },
-          recent: {
-            value: 60,
-            date: '1/11/1111'
-          }
-        },
-        {
-          id: 2,
-          name: 'E-Major',
-          best: {
-            value: 60,
-            date: '1/11/1111'
-          },
-          recent: {
-            value: 50,
-            date: '1/11/1111'
-          }
-        }
-      ]
-      }
-  ];
-  res.json({categories: _categories});
-});
 
-
+var musicRouter = require('./routes/music');
+app.use('/music', musicRouter);
 
 
 app.listen(3000, 'localhost', function(err) {

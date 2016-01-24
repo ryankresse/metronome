@@ -63,32 +63,73 @@ var _tickSpeed = 60;
 var _tickInterval = null;
 var btnText = "Start";
 var _changeTickSpeedTimeout = null;
+var _error;
 
  function loadCats () {
-   console.log('hello');
    $.ajax({
-      url:'/loadCategories',
+      url:'/music',
       dataType: 'json',
       cache: false})
       .done(function(data){
-        _categories = data.categories;
+        _categories = data;
         _loaded = true;
         Store.emitChange();
       }).
       fail(function(err){
-        console.error(err);
+        _error = err.responseText;
+        _loaded = true;
+        Store.emitChange();
       });
  }
 
 
+  function sendNewCatToServer (newCat) {
+    $.ajax({
+       method: 'POST',
+       data: JSON.stringify(newCat),
+       contentType: 'application/json',
+       url:'/music/createCategory',
+       cache: false})
+       .done(function(data){
+         console.log(data);
+         newCat.id = data;
+         console.log(_categories);
+         Store.emitChange();
+       }).
+       fail(function(err){
+         _error = err.responseText;
+         Store.emitChange();
+       });
+  }
+
+  function sendNewEntryToServer (entry) {
+    $.ajax({
+       method: 'POST',
+       data: JSON.stringify({categoryId: _selectedCategory.id, entryName: entry.name}),
+       contentType: 'application/json',
+       url:'/music/createEntry',
+       cache: false})
+       .done(function(data){
+         entry.id = data;
+         console.log(_categories);
+         Store.emitChange();
+       }).
+       fail(function(err){
+         _error = err.responseText;
+         Store.emitChange();
+       });
+  }
+
 
 function createCategory(name) {
-  _categories.push(newCategory(name));
+  var newCat = makeNewCategory(name);
+  _categories.push(newCat);
+  sendNewCatToServer(newCat);
 }
 
 
 
-function newCategory (name) {
+function makeNewCategory (name) {
   return {
     name: name,
     entries: [],
@@ -114,7 +155,9 @@ function newEntry (name) {
 
 
 function createEntry(name) {
-  _selectedCategory.entries.push(newEntry(name));
+  var entry = newEntry(name);
+  _selectedCategory.entries.push(entry);
+  sendNewEntryToServer(entry);
 }
 
 function deleteEntry(entryId) {
@@ -257,7 +300,8 @@ var Store = assign({}, EventEmitter.prototype, {
         selectedEntry: this.getSelectedEntry(),
         selectedCategory: this.getSelectedCategory(),
         tickSpeed: this.getTickSpeed(),
-        btnText: this.getBtnText()
+        btnText: this.getBtnText(),
+        error: this.getError()
       }
    },
 
@@ -274,7 +318,9 @@ var Store = assign({}, EventEmitter.prototype, {
   getSelectedEntry: function () {
     return selectedEntry || null;
   },
-
+  getError: function () {
+    return _error;
+  },
   getSelectedCategory: function () {
     return _selectedCategory;
   },

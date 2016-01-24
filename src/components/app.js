@@ -69,6 +69,7 @@ let App = React.createClass({
     var containerStyle = {"marginTop": "20px"};
     return (
       <div className="container" style={containerStyle}>
+        {this.state.error}
         <div className="row">
           <div className="col-xs-5">
             <div className="row">
