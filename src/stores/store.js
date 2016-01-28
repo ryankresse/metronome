@@ -65,69 +65,52 @@ var btnText = "Start";
 var _changeTickSpeedTimeout = null;
 var _error;
 
- function loadCats () {
-   $.ajax({
-      url:'/music',
-      dataType: 'json',
-      cache: false})
-      .done(function(data){
-        _categories = data;
-        _loaded = true;
+
+
+function makeAjaxCall(url, method, onSuccess, onError, data) {
+  $.ajax({
+     url: url,
+     method: method,
+     contentType: 'application/json',
+     data: JSON.stringify(data) || null,
+     cache: false})
+     .done(function(data){
+       onSuccess(data)
         Store.emitChange();
-      }).
-      fail(function(err){
-        _error = err.responseText;
-        _loaded = true;
-        Store.emitChange();
-      });
- }
+     }).
+     fail(function(err){
+       onError(err)
+       Store.emitChange();
+     });
+}
 
+function genericErrorHandler(err) {
+    _error = err.responseText;
+}
 
-  function sendNewCatToServer (newCat) {
-    $.ajax({
-       method: 'POST',
-       data: JSON.stringify(newCat),
-       contentType: 'application/json',
-       url:'/music/createCategory',
-       cache: false})
-       .done(function(data){
-         console.log(data);
-         newCat.id = data;
-         console.log(_categories);
-         Store.emitChange();
-       }).
-       fail(function(err){
-         _error = err.responseText;
-         Store.emitChange();
-       });
-  }
+function loadCats () {
+  makeAjaxCall('/music', 'GET', onLoadSuccess, onLoadError, null);
+}
 
-  function sendNewEntryToServer (entry) {
-    $.ajax({
-       method: 'POST',
-       data: JSON.stringify({categoryId: _selectedCategory.id, entryName: entry.name}),
-       contentType: 'application/json',
-       url:'/music/createEntry',
-       cache: false})
-       .done(function(data){
-         entry.id = data;
-         console.log(_categories);
-         Store.emitChange();
-       }).
-       fail(function(err){
-         _error = err.responseText;
-         Store.emitChange();
-       });
-  }
+function onLoadSuccess(data) {
+  _categories = data;
+  _loaded = true;
+}
 
+function onLoadError(err) {
+  _error = err.responseText;
+  _loaded = true;
+}
 
 function createCategory(name) {
   var newCat = makeNewCategory(name);
   _categories.push(newCat);
-  sendNewCatToServer(newCat);
+  makeAjaxCall('/music/createCategory', 'POST', onCreateCategorySucess.bind(null, newCat), genericErrorHandler, {data: name});
 }
 
-
+function onCreateCategorySucess(newCat, data) {
+    newCat.id = data;
+}
 
 function makeNewCategory (name) {
   return {
@@ -137,6 +120,11 @@ function makeNewCategory (name) {
   }
 }
 
+function createEntry(name) {
+  var entry = newEntry(name);
+  _selectedCategory.entries.push(entry);
+  makeAjaxCall('/music/createEntry', 'POST', onCreateEntrySucess.bind(null, entry), genericErrorHandler, {data: {categoryId: _selectedCategory.id, entryName: entry.name}});
+}
 
 function newEntry (name) {
   return {
@@ -153,11 +141,8 @@ function newEntry (name) {
   }
 }
 
-
-function createEntry(name) {
-  var entry = newEntry(name);
-  _selectedCategory.entries.push(entry);
-  sendNewEntryToServer(entry);
+function onCreateEntrySucess(entry, data) {
+    entry.id = data;
 }
 
 function deleteEntry(entryId) {
@@ -271,7 +256,21 @@ function clearMostRecentTimemout() {
 function updateMostRecentValue (speed) {
   selectedEntry.recent.value = speed;
   _changeTickSpeedTimeout = null;
+
+  var data = {
+    catId: _selectedCategory.id,
+    entryId: selectedEntry.id,
+    speed: speed
+  };
+
+  makeAjaxCall('/music/updateRecent', 'POST', onUpdateRecentSuccess, genericErrorHandler, {data: data});
   Store.emitChange();
+}
+
+function onUpdateRecentSuccess(data) {
+  var category = _.find(_categories, 'id', data.catId);
+  var updatedEntry = _.find(category.entries, 'id', data.updatedEntry.id);
+  updatedEntry = data.updatedEntry;
 }
 
 var Store = assign({}, EventEmitter.prototype, {
