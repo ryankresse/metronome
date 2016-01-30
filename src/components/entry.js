@@ -3,6 +3,7 @@ import Actions from '../actions/actions';
 
 export default class Entry extends Component {
 
+
   render() {
     var template;
     if (this.props.selectedEntry) {

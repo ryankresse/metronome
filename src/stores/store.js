@@ -145,12 +145,14 @@ function onCreateEntrySucess(entry, data) {
     entry.id = data;
 }
 
-function deleteEntry(entryId) {
+function onEntryDeleted(entryId) {
   var entryToDelete = _.find(_selectedCategory.entries, 'id', entryId);
   if (entryToDelete === selectedEntry) {
     selectedEntry = null;
     startOrStopRecentCountdown(false);
   }
+  var data = {catId: _selectedCategory.id, entryId: entryId};
+  makeAjaxCall('/music/deleteEntry', 'POST', _.noop, genericErrorHandler, {data: data});
   _selectedCategory.entries = _.without(_selectedCategory.entries, entryToDelete);
 }
 
@@ -185,6 +187,7 @@ function onCategoryDeleted(catId) {
     startOrStopRecentCountdown(false);
   }
   _categories = _.without(_categories, catToDelete);
+  makeAjaxCall('/music/deleteCat', 'POST', _.noop, genericErrorHandler, {data: {catId: catId}});
 }
 
 
@@ -192,8 +195,14 @@ function onCategoryDeleted(catId) {
 function updateEntryFastest(speed) {
   if (selectedEntry) {
     selectedEntry.best.value = speed;
+    selectedEntry.best.date = new Date().toISOString();
+    var data = {entryId: selectedEntry.id, catId: _selectedCategory.id, speed: speed};
+    makeAjaxCall('/music/updateFastest', 'POST', _.noop, genericErrorHandler, {data:data});
   }
 }
+
+
+
 
 function onStartOrStop(startOrStop) {
   if (_tickInterval) {
@@ -372,7 +381,7 @@ AppDispatcher.register(function(action) {
         break;
 
     case Constants.ENTRY_DELETED:
-          deleteEntry(action.data.entryId);
+          onEntryDeleted(action.data.entryId);
           Store.emitChange();
         break;
 

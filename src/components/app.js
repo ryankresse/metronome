@@ -61,7 +61,7 @@ let App = React.createClass({
   onDeleteCategory(catId) {
     Actions.onDeleteCategory(catId);
   },
-  onDeleteEntry(entryId) {
+  onDeleteEntry(entryId, catId) {
     Actions.onDeleteEntry(entryId);
   },
   render: function () {

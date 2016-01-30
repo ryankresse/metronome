@@ -36,7 +36,7 @@ let actions = {
           Dispatcher.dispatch({
             actionType: Constants.ENTRY_DELETED,
             data: {
-              entryId: entryId,
+              entryId: entryId
             }
           });
         },
