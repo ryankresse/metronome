@@ -9,11 +9,3 @@ import  Entry  from './components/entry';
 render(<App />,
   document.getElementById('root'));
 
-  /*(
-    <Router history={browserHistory}>
-      <Route path="/" component={App}>
-        <Route path="category/:categoryId" component={Category} >
-          <Route path=":entryId" component={Entry} / >
-        </Route>
-      </Route>
-    </Router>)*/

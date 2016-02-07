@@ -1,0 +1,14 @@
+.selected-category,
+.selected-entry {
+  background-color: #ccc;
+}
+.outer-panel-div {
+    cursor: pointer;
+    margin-bottom: 0px;
+}
+.entry-panel-body {
+  padding: 6px 0px 6px 0px;
+}
+.category-panel-body {
+  padding: 10px 0px 10px 0px;
+}

@@ -7,56 +7,8 @@ var assign = require('object-assign');
 
 var CHANGE_EVENT = 'change';
 var _loaded = false;
-/*var _categories = [
-  {
-    name: "Scales",
-    id: 1,
-    entries: [
-    {
-      name: 'C-Major',
-      id: 1,
-      best: {
-        value: 120,
-        date: '1/11/1111'
-      },
-      recent: {
-        value: 150,
-        date: '1/11/1111'
-      }
-    }],
-  },
-  {
-    name: "Arpeggios",
-    id: 2,
-    entries: [
-      {
-        id: 1,
-        name: 'D-Major',
-        best: {
-          value: 90,
-          date: '1/11/1111'
-        },
-        recent: {
-          value: 60,
-          date: '1/11/1111'
-        }
-      },
-      {
-        id: 2,
-        name: 'E-Major',
-        best: {
-          value: 60,
-          date: '1/11/1111'
-        },
-        recent: {
-          value: 50,
-          date: '1/11/1111'
-        }
-      }
-    ]}
-  ];*/
-  var _categories = [];
-var selectedEntry = null;
+var _categories = [];
+var _selectedEntry = null;
 var _selectedCategory = null;
 var _recentCountdown = null;
 var _tickSpeed = 60;
@@ -109,21 +61,21 @@ function createCategory(name) {
 }
 
 function onCreateCategorySucess(newCat, data) {
-    newCat.id = data;
+    newCat._id = data;
 }
 
 function makeNewCategory (name) {
   return {
     name: name,
     entries: [],
-    id: new Date()
+    _id: new Date()
   }
 }
 
 function createEntry(name) {
   var entry = newEntry(name);
   _selectedCategory.entries.push(entry);
-  makeAjaxCall('/music/createEntry', 'POST', onCreateEntrySucess.bind(null, entry), genericErrorHandler, {data: {categoryId: _selectedCategory.id, entryName: entry.name}});
+  makeAjaxCall('/music/createEntry', 'POST', onCreateEntrySucess.bind(null, entry), genericErrorHandler, {data: {categoryId: _selectedCategory._id, entryName: entry.name}});
 }
 
 function newEntry (name) {
@@ -137,29 +89,29 @@ function newEntry (name) {
       value: null,
       date: null
     },
-    id: new Date()
+    _id: new Date()
   }
 }
 
 function onCreateEntrySucess(entry, data) {
-    entry.id = data;
+    entry._id = data;
 }
 
 function onEntryDeleted(entryId) {
-  var entryToDelete = _.find(_selectedCategory.entries, 'id', entryId);
-  if (entryToDelete === selectedEntry) {
-    selectedEntry = null;
+  var entryToDelete = _.find(_selectedCategory.entries, '_id', entryId);
+  if (entryToDelete === _selectedEntry) {
+    _selectedEntry = null;
     startOrStopRecentCountdown(false);
   }
-  var data = {catId: _selectedCategory.id, entryId: entryId};
+  var data = {catId: _selectedCategory._id, entryId: entryId};
   makeAjaxCall('/music/deleteEntry', 'POST', _.noop, genericErrorHandler, {data: data});
   _selectedCategory.entries = _.without(_selectedCategory.entries, entryToDelete);
 }
 
 
 function setSelectedEntry (entryId) {
-  selectedEntry = _.find(_selectedCategory.entries, 'id', entryId);
-  _tickSpeed = selectedEntry.best.value || 60;
+  _selectedEntry = _.find(_selectedCategory.entries, '_id', entryId);
+  _tickSpeed = _selectedEntry.best.value || 60;
   if (_tickInterval) {
     changeTickInterval(_tickSpeed);
     startOrStopRecentCountdown(true);
@@ -167,23 +119,23 @@ function setSelectedEntry (entryId) {
 }
 
 function getSelectedEntry () {
-  return selectedEntry;
+  return _selectedEntry;
 }
 
 
 function onCategorySelected(catId) {
-  if (_selectedCategory === null || catId !== _selectedCategory.id) {
-    _selectedCategory = _.find(_categories, 'id', catId);
-    selectedEntry = null;
+  if ( !_selectedCategory || catId !== _selectedCategory._id) {
+    _selectedCategory = _.find(_categories, '_id', catId);
+    _selectedEntry = null;
     startOrStopRecentCountdown(false);
   }
 }
 
 function onCategoryDeleted(catId) {
-  var catToDelete = _.find(_categories, 'id', catId);
+  var catToDelete = _.find(_categories, '_id', catId);
   if (catToDelete === _selectedCategory) {
     _selectedCategory = null;
-    selectedEntry = null;
+    _selectedEntry = null;
     startOrStopRecentCountdown(false);
   }
   _categories = _.without(_categories, catToDelete);
@@ -193,10 +145,10 @@ function onCategoryDeleted(catId) {
 
 
 function updateEntryFastest(speed) {
-  if (selectedEntry) {
-    selectedEntry.best.value = speed;
-    selectedEntry.best.date = new Date().toISOString();
-    var data = {entryId: selectedEntry.id, catId: _selectedCategory.id, speed: speed};
+  if (_selectedEntry) {
+    _selectedEntry.best.value = speed;
+    _selectedEntry.best.date = new Date().toISOString();
+    var data = {entryId: _selectedEntry._id, catId: _selectedCategory._id, speed: speed};
     makeAjaxCall('/music/updateFastest', 'POST', _.noop, genericErrorHandler, {data:data});
   }
 }
@@ -221,7 +173,7 @@ function startOrStopRecentCountdown(isStart) {
   window.clearTimeout(_recentCountdown);
   _recentCountdown = null;
 
-  if (isStart && selectedEntry) {
+  if (isStart && _selectedEntry) {
       _recentCountdown = window.setTimeout(updateMostRecentValue.bind(null, _tickSpeed), 5000);
   }
 }
@@ -263,44 +215,23 @@ function clearMostRecentTimemout() {
 }
 
 function updateMostRecentValue (speed) {
-  selectedEntry.recent.value = speed;
+  _selectedEntry.recent.value = speed;
+  _selectedEntry.recent.date = new Date().toISOString();
+
   _changeTickSpeedTimeout = null;
 
   var data = {
-    catId: _selectedCategory.id,
-    entryId: selectedEntry.id,
+    catId: _selectedCategory._id,
+    entryId: _selectedEntry._id,
     speed: speed
   };
 
-  makeAjaxCall('/music/updateRecent', 'POST', onUpdateRecentSuccess, genericErrorHandler, {data: data});
+  makeAjaxCall('/music/updateRecent', 'POST', _.noop, genericErrorHandler, {data: data});
   Store.emitChange();
-}
-
-function onUpdateRecentSuccess(data) {
-  var category = _.find(_categories, 'id', data.catId);
-  var updatedEntry = _.find(category.entries, 'id', data.updatedEntry.id);
-  updatedEntry = data.updatedEntry;
 }
 
 var Store = assign({}, EventEmitter.prototype, {
 
-  /**
-   * Tests whether all the remaining TODO items are marked as completed.
-   * @return {boolean}
-   */
-  areAllComplete: function() {
-    for (var id in _todos) {
-      if (!_todos[id].complete) {
-        return false;
-      }
-    }
-    return true;
-  },
-
-  /**
-   * Get the entire collection of TODOs.
-   * @return {object}
-   */
 
    getState() {
       return {
@@ -319,12 +250,12 @@ var Store = assign({}, EventEmitter.prototype, {
     }
     return _categories;
   },
-  getCategory: function (id) {
-    var cat =  _.find(_categories, {'id': id })
+  getCategory: function (_id) {
+    var cat =  _.find(_categories, {'_id': _id })
     return cat;
   },
   getSelectedEntry: function () {
-    return selectedEntry || null;
+    return _selectedEntry || null;
   },
   getError: function () {
     return _error;

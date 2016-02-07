@@ -10,27 +10,6 @@ export default React.createClass({
     return {tickInterval: null, tickSpeed: this.props.tickSpeed}
   },
 
-  /*componentWillReceiveProps(newProps) {
-    var differentSpeed = isNewSpeed(newProps.tickSpeed, this.state.tickSpeed);
-
-    if (!differentSpeed) return;
-
-    if (this.state.tickInterval) {
-      window.clearInterval(this.state.tickInterval);
-      this.setState({
-        tickSpeed: newProps.tickSpeed,
-        tickInterval: startTick(newProps.tickSpeed)
-      }, this.emitStartRecentCountdown(newProps.tickSpeed));
-    }
-    else {
-      this.setState({
-        tickSpeed: newProps.tickSpeed,
-        tickInterval: null
-      });
-    }
-
-  },*/
-
   onStartStopClick(e) {
     this.props.onStartStopClick(parseInt(document.getElementById('tickSpeed').value));
   },

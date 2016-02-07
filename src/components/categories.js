@@ -23,7 +23,4 @@ export default class Categories extends Component {
     );
   }
 }
-  //<ul>{this.props.categories.map(createCategory)}</ul>
-  //let createCategory = function(category, index) {
-    //return <li key={index}><Category key={index} category={category} /></li>
-  //};
+  

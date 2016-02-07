@@ -1,0 +1,38 @@
+[
+    {
+        "name": "Scales",
+        "id": 1,
+        "entries": [
+            {
+                "name": "C-Major",
+                "id": 1,
+                "best": {
+                    "value": 120,
+                    "date": ""
+                },
+                "recent": {
+                    "value": 135,
+                    "date": "2016-01-28T23:48:50.971Z"
+                }
+            }
+        ]
+    },
+    {
+        "id": 1454170617574,
+        "name": "arpeggios",
+        "entries": [
+            {
+                "name": "c-major",
+                "best": {
+                    "value": null,
+                    "date": null
+                },
+                "recent": {
+                    "value": null,
+                    "date": null
+                },
+                "id": 1454170631362
+            }
+        ]
+    }
+]

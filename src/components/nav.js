@@ -9,17 +9,17 @@ let Nav = React.createClass({
     return this.props.links.map(this.makePanelMarkup);
   },
   onCategorySelected(cat) {
-    this.props.onCategorySelected(cat.id);
+    this.props.onCategorySelected(cat._id);
   },
 
   onDeleteCatClick(cat, e) {
     e.stopPropagation();
-    this.props.onDeleteCategory(cat.id);
+    this.props.onDeleteCategory(cat._id);
   },
 
   makePanelMarkup(link, i) {
     var classNames = "panel panel-default outer-panel-div"
-    if (this.props.selectedCategory && (link.id === this.props.selectedCategory.id)) {
+    if (this.props.selectedCategory && (link._id === this.props.selectedCategory._id)) {
       classNames += " selected-category";
     }
 

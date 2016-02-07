@@ -5,6 +5,7 @@ var config = require('./webpack.config.dev');
 var app = express();
 var compiler = webpack(config);
 
+
 app.use(express.static(__dirname + '/public'));
 
 app.use(require('webpack-dev-middleware')(compiler, {
@@ -23,11 +24,18 @@ var musicRouter = require('./routes/music');
 app.use('/music', musicRouter);
 
 
-app.listen(3000, 'localhost', function(err) {
-  if (err) {
-    console.log(err);
-    return;
-  }
-
-  console.log('Listening at http://localhost:3000');
+function startApp() {
+	app.listen(3000, 'localhost', function(err) {
+  	if (err) {
+    	console.log(err);
+    	return;
+  	}
+  	console.log('Listening at http://localhost:3000');
 });
+
+}
+
+var db = require('./db');
+//open the db connection
+db.getConn(startApp);
+

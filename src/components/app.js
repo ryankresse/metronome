@@ -38,7 +38,7 @@ let App = React.createClass({
     this.setState(getState());
   },
   _buildCategoryLinks: function() {
-    return this.state.categories.map(cat => ({name: cat.name, id: cat.id}));
+    return this.state.categories.map(cat => ({name: cat.name, _id: cat._id}));
   },
   onEntrySelected(entryId) {
     Actions.onEntrySelected(entryId);
